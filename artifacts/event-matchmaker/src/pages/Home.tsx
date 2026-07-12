@@ -8,19 +8,55 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Zap, Code, Copy, RotateCcw, Activity, Crosshair, Sparkles, Check, CheckCircle2, X } from 'lucide-react';
+import {
+  Zap, Code, Copy, RotateCcw, Activity, Crosshair, Sparkles,
+  Check, CheckCircle2, X, UserCheck, Lightbulb, Rocket, Clock,
+  Users, HelpCircle,
+} from 'lucide-react';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const PRESET_INTERESTS = [
   "AI/ML", "Web Dev", "Mobile Apps", "Gaming", "Climate Tech",
   "Health Tech", "Education", "Finance", "Social Impact",
-  "AR/VR", "Blockchain", "Cybersecurity"
+  "AR/VR", "Blockchain", "Cybersecurity",
 ];
 
 const HACKATHON_THEMES = [
   "Open Innovation", "Climate & Sustainability", "Health & Wellness",
   "Education & Learning", "FinTech", "Social Good", "Gaming & Entertainment",
-  "Future of Work", "Smart Cities", "Web3"
+  "Future of Work", "Smart Cities", "Web3",
 ];
+
+const SAMPLE_PROFILE = {
+  name: "Alex",
+  interests: ["Web Dev", "AI/ML"],
+  skillLevel: "Beginner" as const,
+  theme: "Health & Wellness",
+};
+
+const HOW_IT_WORKS = [
+  {
+    icon: UserCheck,
+    step: "1",
+    title: "Tell us about yourself",
+    desc: "Enter your name, pick your interests from the list, and choose your current skill level.",
+  },
+  {
+    icon: Lightbulb,
+    step: "2",
+    title: "Choose a hackathon theme",
+    desc: "Select the track your hackathon is running — like Climate, Health, or Future of Work.",
+  },
+  {
+    icon: Rocket,
+    step: "3",
+    title: "Get 3 matched ideas",
+    desc: "We show you three tailored project ideas with a role you can own and a 30-second pitch.",
+  },
+];
+
+// ─── Loading state ─────────────────────────────────────────────────────────────
 
 const LOADING_STEPS = [
   "Reading your interests...",
@@ -51,7 +87,6 @@ function LoadingState() {
       exit={{ opacity: 0, y: -16 }}
       className="w-full max-w-md mx-auto text-center py-16 px-6"
     >
-      {/* Spinner */}
       <div className="flex justify-center mb-8">
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
@@ -64,7 +99,6 @@ function LoadingState() {
 
       <h2 className="text-xl font-display font-bold text-foreground mb-6">Finding your matches...</h2>
 
-      {/* Step list */}
       <div className="space-y-3 text-left">
         {LOADING_STEPS.map((step, idx) => {
           const isDone = idx < currentStep;
@@ -89,7 +123,11 @@ function LoadingState() {
                 )}
               </div>
               <span className={`text-sm transition-colors ${
-                isDone ? 'text-muted-foreground line-through' : isActive ? 'text-foreground font-medium' : 'text-muted-foreground/50'
+                isDone
+                  ? 'text-muted-foreground line-through'
+                  : isActive
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground/50'
               }`}>
                 {step}
               </span>
@@ -101,10 +139,14 @@ function LoadingState() {
   );
 }
 
+// ─── Field error types ────────────────────────────────────────────────────────
+
 interface FieldErrors {
   name?: string;
   interests?: string;
 }
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Home() {
   const [step, setStep] = useState<"form" | "loading" | "results">("form");
@@ -141,6 +183,15 @@ export default function Home() {
     }
   };
 
+  const fillSampleProfile = () => {
+    setName(SAMPLE_PROFILE.name);
+    setInterests(SAMPLE_PROFILE.interests);
+    setSkillLevel(SAMPLE_PROFILE.skillLevel);
+    setTheme(SAMPLE_PROFILE.theme);
+    setErrors({});
+    toast({ title: "Sample profile loaded", description: "Hit Generate to see how it works." });
+  };
+
   const handleGenerate = () => {
     const newErrors: FieldErrors = {};
     if (!name.trim()) newErrors.name = "Please enter your name to personalise the results.";
@@ -148,7 +199,6 @@ export default function Home() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Scroll to first error
       setTimeout(() => {
         document.getElementById('field-name')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 50);
@@ -184,7 +234,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative overflow-x-hidden flex flex-col items-center py-12 px-4 sm:px-6">
+    <div className="min-h-[100dvh] relative overflow-x-hidden flex flex-col items-center pb-0 px-4 sm:px-6">
       {/* Background */}
       <div className="fixed inset-0 z-[-1] bg-background">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:32px_32px]" />
@@ -192,16 +242,24 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-5%] h-[300px] w-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none" />
       </div>
 
-      <div className="w-full max-w-3xl mx-auto z-10">
-        {/* Hero */}
-        <div className="text-center mb-10 sm:mb-14">
+      <div className="w-full max-w-3xl mx-auto z-10 pt-12">
+
+        {/* ── Hero ─────────────────────────────────────────────────────────── */}
+        <div className="text-center mb-10 sm:mb-12">
+          {/* Badges row */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center justify-center gap-2 mb-6"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Beginner-friendly hackathon tool</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium">
+              <Sparkles className="w-3.5 h-3.5" />
+              Beginner-friendly hackathon tool
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium">
+              <Clock className="w-3.5 h-3.5" />
+              Built for 2-hour hackathon practice
+            </span>
           </motion.div>
 
           <motion.h1
@@ -226,8 +284,63 @@ export default function Home() {
           </motion.p>
         </div>
 
+        {/* ── Problem + Who it helps ────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10"
+        >
+          <div className="flex gap-3 p-4 rounded-xl bg-card/60 border border-border">
+            <HelpCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">The problem</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Most beginners arrive at a hackathon with no idea what to build. Staring at a blank whiteboard for 30 minutes is a rite of passage — but it doesn't have to be.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 p-4 rounded-xl bg-card/60 border border-border">
+            <Users className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">Who this helps</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                First-time hackers, bootcamp students, and anyone who wants a concrete starting point — a project idea, a role to own, and a pitch you can say out loud.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── How it works ─────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-10"
+        >
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground text-center mb-5">
+            How it works
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {HOW_IT_WORKS.map(({ icon: Icon, step, title, desc }) => (
+              <div key={step} className="flex flex-col items-center text-center p-5 rounded-xl bg-card/60 border border-border gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary/60 mb-1">Step {step}</p>
+                  <p className="text-sm font-semibold text-foreground mb-1">{title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ── Form / Loading / Results ──────────────────────────────────────── */}
         <AnimatePresence mode="wait">
-          {/* ── FORM ── */}
+
+          {/* Form */}
           {step === "form" && (
             <motion.div
               key="form"
@@ -236,6 +349,20 @@ export default function Home() {
               exit={{ opacity: 0, y: -16 }}
               className="bg-card/80 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-6 sm:p-8 space-y-7"
             >
+              {/* Sample profile shortcut */}
+              <div className="flex items-center justify-between pb-1 border-b border-border/50">
+                <p className="text-sm font-semibold text-foreground">Your profile</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fillSampleProfile}
+                  className="text-xs border-primary/30 text-primary hover:bg-primary/10 hover:text-primary h-7 px-3"
+                >
+                  <Zap className="w-3 h-3 mr-1.5" />
+                  Try a sample profile
+                </Button>
+              </div>
+
               {/* Name */}
               <div id="field-name" className="space-y-2">
                 <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
@@ -249,7 +376,9 @@ export default function Home() {
                     setName(e.target.value);
                     if (e.target.value.trim() && errors.name) setErrors(prev => ({ ...prev, name: undefined }));
                   }}
-                  className={`bg-background/60 text-base h-11 ${errors.name ? 'border-destructive focus-visible:ring-destructive/40' : 'border-border focus:border-primary'}`}
+                  className={`bg-background/60 text-base h-11 ${
+                    errors.name ? 'border-destructive focus-visible:ring-destructive/40' : 'border-border focus:border-primary'
+                  }`}
                 />
                 {errors.name && (
                   <p className="text-destructive text-xs flex items-center gap-1 mt-1">
@@ -284,7 +413,6 @@ export default function Home() {
                       </button>
                     );
                   })}
-                  {/* Custom interests */}
                   {interests.filter(i => !PRESET_INTERESTS.includes(i)).map(custom => (
                     <button
                       key={custom}
@@ -297,15 +425,13 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    placeholder="Add a custom interest, then press Enter"
-                    value={customInterest}
-                    onChange={(e) => setCustomInterest(e.target.value)}
-                    onKeyDown={addCustomInterest}
-                    className="bg-background/60 border-border max-w-xs text-sm h-9"
-                  />
-                </div>
+                <Input
+                  placeholder="Add a custom interest, then press Enter"
+                  value={customInterest}
+                  onChange={(e) => setCustomInterest(e.target.value)}
+                  onKeyDown={addCustomInterest}
+                  className="bg-background/60 border-border max-w-xs text-sm h-9"
+                />
                 {errors.interests && (
                   <p className="text-destructive text-xs flex items-center gap-1">
                     <X className="w-3 h-3" /> {errors.interests}
@@ -376,14 +502,14 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* ── LOADING ── */}
+          {/* Loading */}
           {step === "loading" && (
             <motion.div key="loading">
               <LoadingState />
             </motion.div>
           )}
 
-          {/* ── RESULTS ── */}
+          {/* Results */}
           {step === "results" && (
             <motion.div
               key="results"
@@ -391,15 +517,15 @@ export default function Home() {
               animate={{ opacity: 1 }}
               className="space-y-6"
             >
-              {/* Results header */}
               <div className="text-center">
                 <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
                   Your 3 matches, {name}
                 </h2>
-                <p className="text-muted-foreground text-sm mt-1">Tap any card to read the full pitch.</p>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Each idea includes your role, tech stack, and a pitch you can say out loud.
+                </p>
               </div>
 
-              {/* Cards */}
               <div className="grid grid-cols-1 gap-5 sm:gap-6">
                 {results.map((r, idx) => (
                   <motion.div
@@ -409,7 +535,6 @@ export default function Home() {
                     transition={{ delay: idx * 0.15 }}
                     className="bg-card/80 backdrop-blur-xl border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-colors shadow-lg"
                   >
-                    {/* Card header */}
                     <div className="flex items-start justify-between gap-4 px-5 sm:px-6 pt-5 pb-4 border-b border-border/60">
                       <div className="flex items-start gap-3 min-w-0">
                         <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/15 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
@@ -432,15 +557,11 @@ export default function Home() {
                       </Badge>
                     </div>
 
-                    {/* Card body */}
                     <div className="px-5 sm:px-6 py-4 space-y-4">
-                      {/* Role */}
                       <div className="flex items-start gap-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-primary/70 w-20 flex-shrink-0 pt-0.5">Role</span>
                         <span className="text-sm font-semibold text-foreground">{r.suggestedRole}</span>
                       </div>
-
-                      {/* Tech stack */}
                       <div className="flex items-start gap-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-secondary/70 w-20 flex-shrink-0 pt-1">Stack</span>
                         <div className="flex flex-wrap gap-1.5">
@@ -451,8 +572,6 @@ export default function Home() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Pitch */}
                       <div className="flex items-start gap-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-accent/70 w-20 flex-shrink-0 pt-1">Pitch</span>
                         <p className="text-sm text-foreground/85 leading-relaxed italic">"{r.thirtySecondPitch}"</p>
@@ -462,7 +581,6 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Actions */}
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -494,6 +612,22 @@ export default function Home() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer className="w-full mt-16 py-6 border-t border-border/40 text-center">
+        <p className="text-xs text-muted-foreground/60 tracking-wide">
+          Built with{' '}
+          <a
+            href="https://replit.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary/70 hover:text-primary transition-colors font-medium"
+          >
+            Replit Agent
+          </a>
+          {' '}· No login · No database · 100% client-side
+        </p>
+      </footer>
     </div>
   );
 }
