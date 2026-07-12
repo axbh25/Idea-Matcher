@@ -4,7 +4,7 @@ Event Matchmaker is a beginner-friendly hackathon MVP that recommends project id
 
 ## Live Demo
 
-Paste Replit live link here.
+idea-matcher--axbh25.replit.app
 
 ## Problem
 
