@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateRecommendations, Recommendation } from '../lib/recommendations';
+import { generateRecommendations, type Recommendation } from '../lib/recommendations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -222,6 +222,8 @@ export default function Home() {
     navigator.clipboard.writeText(text.trim()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+    }).catch(() => {
+      toast({ title: "Couldn't copy automatically", description: "Try long-pressing the results to select and copy manually.", variant: "destructive" });
     });
   };
 
@@ -500,7 +502,7 @@ export default function Home() {
                   Generate My Matches
                 </Button>
                 <p className="text-center text-xs text-muted-foreground mt-3">
-                  No sign-up needed — results appear instantly.
+                  No sign-up needed — results ready in a few seconds.
                 </p>
               </div>
             </motion.div>
