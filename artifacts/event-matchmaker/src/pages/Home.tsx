@@ -227,6 +227,10 @@ export default function Home() {
 
   const handleReset = () => {
     setStep("form");
+    setName("");
+    setInterests([]);
+    setSkillLevel("Beginner");
+    setTheme("Open Innovation");
     setResults([]);
     setErrors({});
     setCopied(false);
