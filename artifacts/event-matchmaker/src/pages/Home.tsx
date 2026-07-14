@@ -300,7 +300,7 @@ export default function Home() {
           <div className="flex gap-3 p-4 rounded-xl bg-card/60 border border-border">
             <HelpCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-foreground mb-1">The problem</p>
+              <p className="text-sm font-semibold text-foreground mb-1">Problem Statement</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Most beginners arrive at a hackathon with no idea what to build. Staring at a blank whiteboard for 30 minutes is a rite of passage — but it doesn't have to be.
               </p>
